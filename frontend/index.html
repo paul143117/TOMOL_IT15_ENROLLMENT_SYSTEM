@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - Pink Desert Landscape</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: #fce7f3;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .brand { position: absolute; top: 1rem; left: 1rem; color: #9d174d; font-weight: 600; }
+    .card {
+      background: #fdf2f8;
+      border-radius: 1rem;
+      padding: 2rem;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 12px rgba(157,23,77,0.1);
+      border: 1px solid #fbcfe8;
+    }
+    h1 { margin: 0 0 1.5rem; font-size: 1.5rem; color: #1f2937; text-align: center; }
+    .field { margin-bottom: 1rem; }
+    .field label { display: block; margin-bottom: 0.25rem; font-size: 0.875rem; font-weight: 500; color: #4b5563; }
+    .field input {
+      width: 100%;
+      padding: 0.625rem 2.5rem 0.625rem 0.75rem;
+      border: 1px solid #e9d5ff;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      background: #fff;
+    }
+    .field input:focus { outline: none; border-color: #c084fc; box-shadow: 0 0 0 2px rgba(192,132,252,0.2); }
+    .pw-wrap { position: relative; }
+    .pw-wrap input { padding-right: 2.75rem; }
+    .pw-toggle {
+      position: absolute;
+      right: 0.5rem;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.25rem;
+      color: #6b7280;
+    }
+    .pw-toggle:hover { color: #1f2937; }
+    .error {
+      margin-bottom: 1rem;
+      padding: 0.5rem 0.75rem;
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+    }
+    .success {
+      margin-bottom: 1rem;
+      padding: 0.5rem 0.75rem;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      border-radius: 0.5rem;
+      font-size: 0.875rem;
+    }
+    .btn {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      background: #ec4899;
+      color: #fff;
+      margin-top: 0.5rem;
+    }
+    .btn:hover { background: #db2777; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+    .links {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1.25rem;
+      font-size: 0.875rem;
+    }
+    .links a { color: #9d174d; text-decoration: none; }
+    .links a:hover { text-decoration: underline; }
+    .form-toggle { text-align: center; margin-top: 1rem; font-size: 0.875rem; color: #6b7280; }
+    .form-toggle button {
+      background: none;
+      border: none;
+      color: #9d174d;
+      cursor: pointer;
+      font-size: 0.875rem;
+      text-decoration: underline;
+    }
+    .form-toggle button:hover { color: #be185d; }
+    .hidden { display: none !important; }
+    .api-note {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 1rem;
+      padding: 0.5rem;
+      background: #f9fafb;
+      border-radius: 0.375rem;
+    }
+  </style>
+</head>
+<body>
+  <span class="brand">Pink Desert Landscape</span>
+  <div class="card">
+    <!-- Login form -->
+    <div id="loginForm">
+      <h1>Login</h1>
+      <div id="loginError" class="error hidden"></div>
+      <div id="loginSuccess" class="success hidden"></div>
+      <form id="loginSubmit" onsubmit="return handleLogin(event)">
+        <div class="field">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" name="email" placeholder="example@gmail.com" required />
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password</label>
+          <div class="pw-wrap">
+            <input type="password" id="loginPassword" name="password" placeholder="••••••••" required />
+            <button type="button" class="pw-toggle" aria-label="Toggle password visibility" onclick="togglePassword('loginPassword', this)">
+              <svg id="loginPasswordShow" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <svg id="loginPasswordHide" class="hidden" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn" id="loginBtn">Login</button>
+      </form>
+      <div class="links">
+        <a href="#" onclick="showRegister(); return false;">Create an account</a>
+        <a href="#">Forgot password</a>
+      </div>
+    </div>
+
+    <!-- Register form -->
+    <div id="registerForm" class="hidden">
+      <h1>Create an account</h1>
+      <div id="registerError" class="error hidden"></div>
+      <div id="registerSuccess" class="success hidden"></div>
+      <form id="registerSubmit" onsubmit="return handleRegister(event)">
+        <div class="field">
+          <label for="regName">Name</label>
+          <input type="text" id="regName" name="name" placeholder="Your name" required />
+        </div>
+        <div class="field">
+          <label for="regEmail">Email</label>
+          <input type="email" id="regEmail" name="email" placeholder="you@example.com" required />
+        </div>
+        <div class="field">
+          <label for="regPassword">Password</label>
+          <div class="pw-wrap">
+            <input type="password" id="regPassword" name="password" placeholder="Min 8 characters" required minlength="8" />
+            <button type="button" class="pw-toggle" aria-label="Toggle password visibility" onclick="togglePassword('regPassword', this)">
+              <svg id="regPasswordShow" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <svg id="regPasswordHide" class="hidden" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+            </button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="regPasswordConfirm">Confirm password</label>
+          <div class="pw-wrap">
+            <input type="password" id="regPasswordConfirm" name="password_confirmation" placeholder="Repeat password" required minlength="8" />
+            <button type="button" class="pw-toggle" aria-label="Toggle password visibility" onclick="togglePassword('regPasswordConfirm', this)">
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+              <svg class="hidden" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+            </button>
+          </div>
+        </div>
+        <button type="submit" class="btn" id="registerBtn">Create account</button>
+      </form>
+      <div class="form-toggle">
+        Already have an account? <button type="button" onclick="showLogin()">Login</button>
+      </div>
+    </div>
+
+    <div class="api-note">
+      API base: <strong id="apiBase">http://127.0.0.1:8000</strong>. Start backend in project root: <code>php artisan serve</code>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://127.0.0.1:8000';
+    const LOGIN_URLS = [API_BASE + '/api/login', API_BASE + '/api/auth/login'];
+    const REGISTER_URLS = [API_BASE + '/api/register', API_BASE + '/api/auth/register'];
+
+    function togglePassword(inputId, btn) {
+      const input = document.getElementById(inputId);
+      const isPassword = input.type === 'password';
+      input.type = isPassword ? 'text' : 'password';
+      const svgs = btn.querySelectorAll('svg');
+      svgs.forEach(function(s) { s.classList.toggle('hidden'); });
+    }
+
+    function showRegister() {
+      document.getElementById('loginForm').classList.add('hidden');
+      document.getElementById('registerForm').classList.remove('hidden');
+      document.getElementById('registerError').classList.add('hidden');
+      document.getElementById('registerSuccess').classList.add('hidden');
+    }
+    function showLogin() {
+      document.getElementById('registerForm').classList.add('hidden');
+      document.getElementById('loginForm').classList.remove('hidden');
+      document.getElementById('loginError').classList.add('hidden');
+      document.getElementById('loginSuccess').classList.add('hidden');
+    }
+
+    function showLoginError(msg) {
+      const el = document.getElementById('loginError');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      document.getElementById('loginSuccess').classList.add('hidden');
+    }
+    function showLoginSuccess(msg) {
+      const el = document.getElementById('loginSuccess');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      document.getElementById('loginError').classList.add('hidden');
+    }
+    function showRegisterError(msg) {
+      const el = document.getElementById('registerError');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      document.getElementById('registerSuccess').classList.add('hidden');
+    }
+    function showRegisterSuccess(msg) {
+      const el = document.getElementById('registerSuccess');
+      el.textContent = msg;
+      el.classList.remove('hidden');
+      document.getElementById('registerError').classList.add('hidden');
+    }
+
+    async function tryUrls(urls, options) {
+      let lastErr = null;
+      for (const url of urls) {
+        try {
+          const r = await fetch(url, options);
+          const data = await r.json().catch(() => ({}));
+          return { ok: r.ok, status: r.status, data, url };
+        } catch (e) {
+          lastErr = e;
+        }
+      }
+      throw lastErr || new Error('Network error');
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      const btn = document.getElementById('loginBtn');
+      btn.disabled = true;
+      showLoginError('');
+      try {
+        const { ok, status, data } = await tryUrls(LOGIN_URLS, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ email, password }),
+        });
+        if (ok) {
+          showLoginSuccess('Login successful! User: ' + (data.user && data.user.email));
+          if (data.token) localStorage.setItem('token', data.token);
+        } else {
+          const msg = (data.message || data.errors || data.email) ? (data.message || (Array.isArray(data.email) ? data.email[0] : data.email) || 'Login failed') : 'Login failed (' + status + ')';
+          showLoginError(typeof msg === 'string' ? msg : JSON.stringify(msg));
+        }
+      } catch (err) {
+        showLoginError('Cannot reach backend (404 or CORS). Start backend in project root: php artisan serve. Then open this file from the frontend folder.');
+      }
+      btn.disabled = false;
+      return false;
+    }
+
+    async function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const password = document.getElementById('regPassword').value;
+      const password_confirmation = document.getElementById('regPasswordConfirm').value;
+      if (password !== password_confirmation) {
+        showRegisterError('Passwords do not match.');
+        return false;
+      }
+      const btn = document.getElementById('registerBtn');
+      btn.disabled = true;
+      showRegisterError('');
+      try {
+        const { ok, status, data } = await tryUrls(REGISTER_URLS, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+          body: JSON.stringify({ name, email, password, password_confirmation }),
+        });
+        if (ok) {
+          showRegisterSuccess('Account created! You can now login.');
+          if (data.token) localStorage.setItem('token', data.token);
+        } else {
+          const msg = data.message || (data.errors && (data.errors.email ? data.errors.email[0] : data.errors.password ? data.errors.password[0] : null)) || 'Registration failed (' + status + ')';
+          showRegisterError(typeof msg === 'string' ? msg : JSON.stringify(msg));
+        }
+      } catch (err) {
+        showRegisterError('Cannot reach backend. Start backend in project root: php artisan serve.');
+      }
+      btn.disabled = false;
+      return false;
+    }
+  </script>
+</body>
+</html>
